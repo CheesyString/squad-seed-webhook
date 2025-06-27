@@ -7,7 +7,11 @@ app.use(express.json());
 const discordWebhookURL = process.env['WEBHOOK_URL'];
 
 app.post('/seed-progress', async (req, res) => {
-  const { server, timestamp } = req.body;
+  const { server } = req.body;
+
+  if (!server) {
+    return res.status(400).send('Missing server data');
+  }
 
   const players = parseInt(server.players, 10) || 0;
   const max = 50;
@@ -23,11 +27,9 @@ app.post('/seed-progress', async (req, res) => {
         title: "⚠️ Seeding in corso!",
         color: 2281737,
         fields: [
-          { name: "Server", value: `\`${server.name}\`` },
-          { name: "Giocatori", value: `\`\`\`${server.players}/${server.maxPlayers}\`\`\``, inline: true },
-          { name: "Mappa", value: `\`\`\`${server.map}\`\`\``, inline: true },
-          { name: "Stato Seeding", value: `\`\`\`${bar}\`\`\`` },
-          { name: "Orario", value: `${timestamp.date} alle ${timestamp.time}` }
+          { name: "Mappa", value: `\`\`\`${server.map}\`\`\`` },
+          { name: "Giocatori", value: `\`\`\`${server.players}/${server.maxPlayers}\`\`\`` },
+          { name: "Stato Seeding", value: `\`\`\`${bar}\`\`\`` }
         ],
         footer: { text: "Vi aspettiamo sul server!" },
         image: {
@@ -45,8 +47,8 @@ app.post('/seed-progress', async (req, res) => {
       body: JSON.stringify(payload)
     });
 
+    const text = await response.text();
     if (!response.ok) {
-      const text = await response.text();
       console.error('Discord webhook error:', text);
       return res.status(500).send(text);
     }
@@ -62,4 +64,5 @@ app.get('/', (req, res) => {
   res.send('Seed Progress Webhook is Running');
 });
 
-app.listen(3000, () => console.log('Listening on port 3000'));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
