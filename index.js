@@ -28,31 +28,22 @@ app.post('/seed-progress', async (req, res) => {
   const empty = '░'.repeat(Math.max(0, max - playerCount));
   const bar = `[${filled}${empty}] ${playerCount}/50`;
 
-  const payload = {
-    content: "<@&1315305828622008351> Seed attivo!",
-    embeds: [
-      {
-        title: "⚠️ Seeding in corso!",
-        color: 2281737,
-        fields: [
-          { name: "Mappa", value: `\`\`\`${map}\`\`\`` },
-          { name: "Giocatori", value: `\`\`\`${playerCount}/${maxPlayers}\`\`\`` },
-          { name: "Stato Seeding", value: `\`\`\`${bar}\`\`\`` }
-        ],
-        footer: { text: "Vi aspettiamo sul server!" },
-        image: {
-          url: "https://raw.githubusercontent.com/CheesyString/squadita-dashboard/refs/heads/main/Screenshot%202025-06-27%20112042.png"
-        }
-      }
-    ],
-    username: "Seed Bot"
-  };
+  const message = [
+    '<@&1315305828622008351> Seed attivo!',
+    '',
+    `🗺️ Mappa: \`${map}\``,
+    `👥 Giocatori: \`${playerCount}/${maxPlayers}\``,
+    '',
+    `📊 Stato Seeding:\n${bar}`,
+    '',
+    'Vi aspettiamo sul server!'
+  ].join('\n');
 
   try {
     const response = await fetch(discordWebhookURL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ content: message, username: 'Seed Bot' })
     });
 
     const text = await response.text();
@@ -61,7 +52,7 @@ app.post('/seed-progress', async (req, res) => {
       return res.status(500).send(text);
     }
 
-    console.log('✅ Message sent to Discord');
+    console.log('✅ Plain message sent to Discord');
     res.sendStatus(200);
   } catch (err) {
     console.error('❌ Fetch error:', err);
