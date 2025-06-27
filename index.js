@@ -7,19 +7,19 @@ app.use(express.json());
 const discordWebhookURL = process.env['WEBHOOK_URL'];
 
 app.post('/seed-progress', async (req, res) => {
-  const { server } = req.body;
+  const { players, maxPlayers, map } = req.body;
 
-  if (!server) {
-    console.error('Missing server data in request body:', req.body);
-    return res.status(400).send('Missing server data');
+  if (players === undefined || maxPlayers === undefined || !map) {
+    console.error('Missing data in request:', req.body);
+    return res.status(400).send('Missing required data');
   }
 
-  const players = parseInt(server.players, 10) || 0;
+  const playerCount = parseInt(players, 10) || 0;
   const max = 50;
 
-  const filled = '█'.repeat(Math.min(players, max));
-  const empty = '░'.repeat(Math.max(0, max - players));
-  const bar = `[${filled}${empty}] ${players}/50`;
+  const filled = '█'.repeat(Math.min(playerCount, max));
+  const empty = '░'.repeat(Math.max(0, max - playerCount));
+  const bar = `[${filled}${empty}] ${playerCount}/50`;
 
   const payload = {
     content: "<@&1315305828622008351> Seed attivo!",
@@ -28,8 +28,8 @@ app.post('/seed-progress', async (req, res) => {
         title: "⚠️ Seeding in corso!",
         color: 2281737,
         fields: [
-          { name: "Mappa", value: `\`\`\`${server.map || "N/A"}\`\`\`` },
-          { name: "Giocatori", value: `\`\`\`${server.players || "0"}/${server.maxPlayers || "50"}\`\`\`` },
+          { name: "Mappa", value: `\`\`\`${map}\`\`\`` },
+          { name: "Giocatori", value: `\`\`\`${playerCount}/${maxPlayers}\`\`\`` },
           { name: "Stato Seeding", value: `\`\`\`${bar}\`\`\`` }
         ],
         footer: { text: "Vi aspettiamo sul server!" },
@@ -40,8 +40,6 @@ app.post('/seed-progress', async (req, res) => {
     ],
     username: "Seed Bot"
   };
-
-  console.log('Discord Payload:', JSON.stringify(payload, null, 2));
 
   try {
     const response = await fetch(discordWebhookURL, {
