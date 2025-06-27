@@ -29,7 +29,7 @@ app.post('/seed-progress', async (req, res) => {
   const bar = `[${filled}${empty}] ${playerCount}/50`;
 
   const message = [
-    '<@&1315305828622008351> Seed attivo!',
+    'Seed attivo!',
     '',
     `🗺️ Mappa: \`${map}\``,
     `👥 Giocatori: \`${playerCount}/${maxPlayers}\``,
