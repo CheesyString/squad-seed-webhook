@@ -3,8 +3,14 @@ import express from 'express';
 const app = express();
 app.use(express.json());
 
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.url}`);
+  console.log('Headers:', req.headers);
+  console.log('Body:', JSON.stringify(req.body, null, 2));
+  next();
+});
+
 app.post('/seed-progress', (req, res) => {
-  console.log('Incoming webhook body:', JSON.stringify(req.body, null, 2));
   res.sendStatus(200);
 });
 
