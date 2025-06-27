@@ -10,6 +10,7 @@ app.post('/seed-progress', async (req, res) => {
   const { server } = req.body;
 
   if (!server) {
+    console.error('Missing server data in request body:', req.body);
     return res.status(400).send('Missing server data');
   }
 
@@ -27,8 +28,8 @@ app.post('/seed-progress', async (req, res) => {
         title: "⚠️ Seeding in corso!",
         color: 2281737,
         fields: [
-          { name: "Mappa", value: `\`\`\`${server.map}\`\`\`` },
-          { name: "Giocatori", value: `\`\`\`${server.players}/${server.maxPlayers}\`\`\`` },
+          { name: "Mappa", value: `\`\`\`${server.map || "N/A"}\`\`\`` },
+          { name: "Giocatori", value: `\`\`\`${server.players || "0"}/${server.maxPlayers || "50"}\`\`\`` },
           { name: "Stato Seeding", value: `\`\`\`${bar}\`\`\`` }
         ],
         footer: { text: "Vi aspettiamo sul server!" },
@@ -39,6 +40,8 @@ app.post('/seed-progress', async (req, res) => {
     ],
     username: "Seed Bot"
   };
+
+  console.log('Discord Payload:', JSON.stringify(payload, null, 2));
 
   try {
     const response = await fetch(discordWebhookURL, {
