@@ -8,6 +8,7 @@ const discordWebhookURL = process.env['WEBHOOK_URL'];
 
 app.post('/seed-progress', async (req, res) => {
   const { server, timestamp } = req.body;
+
   const players = parseInt(server.players, 10) || 0;
   const max = 50;
 
@@ -25,11 +26,13 @@ app.post('/seed-progress', async (req, res) => {
           { name: "Server", value: `\`${server.name}\`` },
           { name: "Giocatori", value: `\`\`\`${server.players}/${server.maxPlayers}\`\`\``, inline: true },
           { name: "Mappa", value: `\`\`\`${server.map}\`\`\``, inline: true },
-          { name: "Stato Seeding", value: `\`\`\`${bar}\`\`\`` }
+          { name: "Stato Seeding", value: `\`\`\`${bar}\`\`\`` },
+          { name: "Orario", value: `${timestamp.date} alle ${timestamp.time}` }
         ],
-        timestamp: timestamp?.iso8601 || new Date().toISOString(),
         footer: { text: "Vi aspettiamo sul server!" },
-        image: { url: "https://raw.githubusercontent.com/CheesyString/squadita-dashboard/refs/heads/main/Screenshot%202025-06-27%20112042.png" }
+        image: {
+          url: "https://raw.githubusercontent.com/CheesyString/squadita-dashboard/refs/heads/main/Screenshot%202025-06-27%20112042.png"
+        }
       }
     ],
     username: "Seed Bot"
@@ -43,13 +46,14 @@ app.post('/seed-progress', async (req, res) => {
     });
 
     if (!response.ok) {
-      console.error(await response.text());
-      return res.sendStatus(500);
+      const text = await response.text();
+      console.error('Discord webhook error:', text);
+      return res.status(500).send(text);
     }
 
     res.sendStatus(200);
   } catch (err) {
-    console.error(err);
+    console.error('Fetch error:', err);
     res.sendStatus(500);
   }
 });
